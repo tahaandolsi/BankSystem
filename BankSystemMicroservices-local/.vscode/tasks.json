@@ -1,0 +1,352 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build-all",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "BankSystem.sln"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": "$msCompile",
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
+            "label": "clean-all",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "clean",
+                "BankSystem.sln"
+            ],
+            "group": "build",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "restore-all",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "restore",
+                "BankSystem.sln"
+            ],
+            "group": "build",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "unit-test-all",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "test",
+                "BankSystem.sln",
+                "--collect",
+                "\"XPlat Code Coverage\"",
+                "--results-directory",
+                "./TestResults",
+                "--logger",
+                "trx",
+                "--settings",
+                "coverlet.runsettings",
+                "--filter",
+                "\"FullyQualifiedName~UnitTests\""
+            ],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "problemMatcher": "$msCompile",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "run-security-api",
+            "type": "shell",
+            "command": "dotnet",
+            "args": ["run"],
+            "options": {
+                "cwd": "${workspaceFolder}/Services/Security/src/Security.Api"
+            },
+            "group": "build",
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "custom",
+                "pattern": {
+                    "regexp": "^\\s*(\\S.*)$",
+                    "line": 1
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^.*Now listening on.*$",
+                    "endsPattern": "^.*Application started.*$"
+                }
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "dedicated",
+                "showReuseMessage": false
+            }
+        },
+        {
+            "label": "run-movement-api",
+            "type": "shell",
+            "command": "dotnet",
+            "args": ["run"],
+            "options": {
+                "cwd": "${workspaceFolder}/Services/Movement/src/Movement.Api"
+            },
+            "group": "build",
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "custom",
+                "pattern": {
+                    "regexp": "^\\s*(\\S.*)$",
+                    "line": 1
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^.*Now listening on.*$",
+                    "endsPattern": "^.*Application started.*$"
+                }
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "dedicated",
+                "showReuseMessage": false
+            }
+        },
+        {
+            "label": "run-account-api",
+            "type": "shell",
+            "command": "dotnet",
+            "args": ["run"],
+            "options": {
+                "cwd": "${workspaceFolder}/Services/Account/src/Account.Api"
+            },
+            "group": "build",
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "custom",
+                "pattern": {
+                    "regexp": "^\\s*(\\S.*)$",
+                    "line": 1
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^.*Now listening on.*$",
+                    "endsPattern": "^.*Application started.*$"
+                }
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "dedicated",
+                "showReuseMessage": false
+            }
+        },
+        {
+            "label": "ef-add-migration",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "ef",
+                "migrations",
+                "add",
+                "${input:migrationName}",
+                "--project",
+                "${input:projectName}.Infrastructure",
+                "--startup-project",
+                "${input:projectName}.Api"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/Services/${input:serviceName}/src"
+            },
+            "group": "build",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "ef-update-database",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "ef",
+                "database",
+                "update",
+                "--project",
+                "${input:projectName}.Infrastructure",
+                "--startup-project",
+                "${input:projectName}.Api"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/Services/${input:serviceName}/src"
+            },
+            "group": "build",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "ef-remove-migration",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "ef",
+                "migrations",
+                "remove",
+                "--project",
+                "${input:projectName}.Infrastructure",
+                "--startup-project",
+                "${input:projectName}.Api"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/Services/${input:serviceName}/src"
+            },
+            "group": "build",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "ef-script-migration",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "ef",
+                "migrations",
+                "script",
+                "--project",
+                "${input:projectName}.Infrastructure",
+                "--startup-project",
+                "${input:projectName}.Api",
+                "--output",
+                "migration-script.sql"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/Services/${input:serviceName}/src"
+            },
+            "group": "build",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "docker-build-all",
+            "type": "shell",
+            "command": "docker-compose",
+            "args": ["-f", "docker-compose/docker-compose.yml", "build"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "docker-up",
+            "type": "shell",
+            "command": "docker-compose",
+            "args": ["-f", "docker-compose/docker-compose.yml", "up", "-d"],
+            "group": "build",
+            "isBackground": true,
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "docker-down",
+            "type": "shell",
+            "command": "docker-compose",
+            "args": ["-f", "docker-compose/docker-compose.yml", "down"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "format-code",
+            "type": "shell",
+            "command": "dotnet",
+            "args": ["format"],
+            "group": "build",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "code-analysis",
+            "type": "shell",
+            "command": "dotnet",
+            "args": ["build", "--verbosity", "normal"],
+            "group": "build",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "generate-coverage-report",
+            "type": "shell",
+            "command": "reportgenerator",
+            "args": [
+                "-reports:TestResults/**/coverage.cobertura.xml",
+                "-targetdir:CoverageReport",
+                "-reporttypes:Html"
+            ],
+            "group": "test",
+            "dependsOn": "test-all",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        }
+    ],
+    "inputs": [
+        {
+            "id": "serviceName",
+            "description": "Service name (e.g., Security, Movement, Account)",
+            "default": "Security",
+            "type": "pickString",
+            "options": [
+                "Security",
+                "Movement", 
+                "Account"
+            ]
+        },
+        {
+            "id": "projectName",
+            "description": "Project name (e.g., Security, Movement, Account)",
+            "default": "Security",
+            "type": "pickString",
+            "options": [
+                "Security",
+                "Movement",
+                "Account"
+            ]
+        },
+        {
+            "id": "migrationName",
+            "description": "Migration name",
+            "default": "InitialCreate",
+            "type": "promptString"
+        }
+    ]
+}

@@ -1,0 +1,1 @@
+namespace BankSystem.Movement.Application.DTOs; public record MovementDto(Guid Id,Guid TransactionId,Guid AccountId,Guid? ToAccountId,decimal Amount,string Currency,string Type,string Description,string Reference,DateTime Timestamp);

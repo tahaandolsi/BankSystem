@@ -1,0 +1,1 @@
+namespace BankSystem.Notification.Domain.Entities; public class UserNotificationPreferences{public string UserId{get;set;}=string.Empty;public bool EmailEnabled{get;set;}=true;public bool SmsEnabled{get;set;}=true;public bool PushEnabled{get;set;}=true;public bool InAppEnabled{get;set;}=true;public string PreferredLanguage{get;set;}="en";}

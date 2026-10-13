@@ -1,0 +1,16 @@
+<section class="page" aria-labelledby="account-title">
+  <a class="back" routerLink="/accounts">← Mes comptes</a>
+  @if (isLoading()) { <p>Chargement du compte…</p> }
+  @else if (error(); as message) { <p class="error">{{ message }}</p> }
+  @else if (account(); as currentAccount) {
+    <p class="eyebrow">{{ currentAccount.status }}</p>
+    <h1 id="account-title">Compte {{ currentAccount.accountType }}</h1>
+    <div class="balance">{{ currentAccount.balance | currency: currentAccount.currency : 'symbol' : '1.2-2' }}</div>
+    <a class="history-link" [routerLink]="['/movements']" [queryParams]="{ accountId: currentAccount.id }">Voir l’historique des mouvements</a>
+    <dl>
+      <div><dt>Numéro de compte</dt><dd>{{ currentAccount.accountNumber }}</dd></div>
+      <div><dt>Devise</dt><dd>{{ currentAccount.currency }}</dd></div>
+      <div><dt>Ouvert le</dt><dd>{{ currentAccount.createdAt | date: 'mediumDate' }}</dd></div>
+    </dl>
+  }
+</section>

@@ -1,0 +1,1 @@
+using BankSystem.Movement.Application.DTOs; using MediatR; namespace BankSystem.Movement.Application.Queries; public record GetMovementsQuery(Guid AccountId,DateTime? FromDate=null,DateTime? ToDate=null,int Page=1,int PageSize=50):IRequest<IReadOnlyList<MovementDto>>; public record GetMovementQuery(Guid Id):IRequest<MovementDto?>;

@@ -1,0 +1,1 @@
+namespace BankSystem.Reporting.Application.DTOs;public record ReportExecutionDto(Guid Id,Guid ReportDefinitionId,string Status,DateTime RequestedAt,DateTime? CompletedAt,string? FilePath,string? ErrorMessage,string RequestedBy);

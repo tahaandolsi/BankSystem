@@ -1,0 +1,8 @@
+.shell { display: flex; min-height: 100dvh; }
+.workspace { display: flex; flex: 1; flex-direction: column; min-width: 0; }
+.page-content { flex: 1; }
+
+@media (max-width: 700px) {
+  .shell { display: block; }
+  .sidebar { min-height: auto; width: auto; }
+}

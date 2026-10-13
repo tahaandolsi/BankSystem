@@ -1,0 +1,14 @@
+.auth-page { align-items: center; background: #f5f7fb; box-sizing: border-box; display: flex; justify-content: center; min-height: 100dvh; padding: 2rem; }
+.auth-card { background: #fff; border-radius: 1rem; box-shadow: 0 1rem 3rem rgb(15 23 42 / 10%); max-width: 32rem; padding: 2.5rem; width: 100%; }
+.eyebrow { color: #2563eb; font-size: .75rem; font-weight: 700; letter-spacing: .12em; margin: 0 0 .75rem; }
+h1 { color: #172554; margin: 0 0 .5rem; }
+.intro, .alternate { color: #475569; line-height: 1.5; }
+form { display: grid; gap: .5rem; margin-top: 1.5rem; }
+label { color: #1e293b; font-weight: 600; margin-top: .4rem; }
+input { border: 1px solid #cbd5e1; border-radius: .5rem; font: inherit; padding: .65rem .75rem; }
+input:focus { border-color: #2563eb; outline: 2px solid rgb(37 99 235 / 20%); }
+small, .alert { color: #b91c1c; margin: 0; }
+.alert { background: #fef2f2; border-radius: .5rem; margin-top: 1rem; padding: .75rem; }
+button { background: #1d4ed8; border: 0; border-radius: .5rem; color: #fff; cursor: pointer; font: inherit; font-weight: 700; margin-top: 1rem; padding: .75rem 1rem; }
+button:disabled { cursor: wait; opacity: .7; }
+a { color: #1d4ed8; font-weight: 700; }

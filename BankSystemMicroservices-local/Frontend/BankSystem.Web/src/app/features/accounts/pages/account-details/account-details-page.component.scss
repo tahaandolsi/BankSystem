@@ -1,0 +1,10 @@
+.page { padding: 2rem; }
+.back { color: #1d4ed8; display: inline-block; font-weight: 700; margin-bottom: 2rem; text-decoration: none; }
+.eyebrow { color: #2563eb; font-size: .75rem; font-weight: 700; letter-spacing: .1em; }
+h1 { color: #172554; }
+.balance { color: #172554; font-size: 2.5rem; font-weight: 800; margin: 1.5rem 0; }
+.history-link { color: #1d4ed8; display: inline-block; font-weight: 700; margin-bottom: 1.5rem; }
+dl { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); max-width: 45rem; }
+dl div { background: #fff; border: 1px solid #e2e8f0; border-radius: .75rem; padding: 1rem; }
+dt { color: #64748b; font-size: .85rem; } dd { color: #172554; font-weight: 700; margin: .4rem 0 0; }
+.error { color: #b91c1c; }

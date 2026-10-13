@@ -1,0 +1,38 @@
+<section class="page" aria-labelledby="movements-title">
+  <p class="eyebrow">HISTORIQUE</p>
+  <h1 id="movements-title">Mouvements du compte</h1>
+
+  <form [formGroup]="form" (ngSubmit)="loadMovements()" novalidate>
+    <div class="field account-field">
+      <label for="accountId">Identifiant du compte</label>
+      <input id="accountId" type="text" formControlName="accountId" placeholder="UUID du compte" />
+      @if (form.controls.accountId.touched && form.controls.accountId.invalid) { <small>Un identifiant de compte valide est obligatoire.</small> }
+    </div>
+    <div class="field"><label for="fromDate">Du</label><input id="fromDate" type="date" formControlName="fromDate" /></div>
+    <div class="field"><label for="toDate">Au</label><input id="toDate" type="date" formControlName="toDate" /></div>
+    <button type="submit" [disabled]="isLoading()">{{ isLoading() ? 'Chargement…' : 'Afficher' }}</button>
+  </form>
+
+  @if (error(); as message) { <p class="alert" role="alert">{{ message }}</p> }
+
+  @if (!isLoading() && movements().length > 0) {
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Référence</th><th>Montant</th></tr></thead>
+        <tbody>
+          @for (movement of movements(); track movement.id) {
+            <tr>
+              <td>{{ movement.timestamp | date: 'short' }}</td>
+              <td>{{ movement.type }}</td>
+              <td>{{ movement.description || '—' }}</td>
+              <td>{{ movement.reference || '—' }}</td>
+              <td class="amount">{{ movement.amount | currency: movement.currency : 'symbol' : '1.2-2' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else if (!isLoading() && form.controls.accountId.valid && !error()) {
+    <p class="empty">Aucun mouvement ne correspond à ces critères.</p>
+  }
+</section>

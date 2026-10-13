@@ -1,0 +1,31 @@
+.dashboard {
+  box-sizing: border-box;
+  padding: 2rem;
+}
+
+section {
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 1rem 3rem rgb(15 23 42 / 10%);
+  max-width: 48rem;
+  padding: 2.5rem;
+}
+
+h1 {
+  color: #172554;
+  margin: 0 0 1rem;
+}
+
+p {
+  color: #475569;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.eyebrow {
+  color: #2563eb;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  margin-bottom: .75rem;
+}

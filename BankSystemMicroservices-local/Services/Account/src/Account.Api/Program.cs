@@ -1,0 +1,39 @@
+using System.Diagnostics.CodeAnalysis;
+using BankSystem.Account.Api;
+using BankSystem.Account.Application;
+using BankSystem.Account.Infrastructure;
+using BankSystem.ServiceDefaults;
+using BankSystem.Shared.WebApiDefaults.Extensions;
+
+var builder = WebApplication.CreateBuilder(args);
+builder.AddServiceDefaults();
+
+// Add services to the container
+builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddWebApiServices(builder.Configuration);
+
+// Add policies
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Angular", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:4200")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
+var app = builder.Build();
+app.MapDefaultEndpoints();
+
+app.UseCors("Angular");
+
+// Use service defaults middleware pipeline
+app.UseWebApiDefaults("Account API");
+
+await app.RunAsync();
+
+[ExcludeFromCodeCoverage]
+public static partial class Program { }

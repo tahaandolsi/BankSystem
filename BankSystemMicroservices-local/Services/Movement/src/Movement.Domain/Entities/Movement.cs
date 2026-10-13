@@ -1,0 +1,2 @@
+namespace BankSystem.Movement.Domain.Entities;
+public class Movement { public Guid Id{get;set;} public Guid TransactionId{get;set;} public Guid AccountId{get;set;} public Guid? ToAccountId{get;set;} public decimal Amount{get;set;} public string Currency{get;set;}="USD"; public string Type{get;set;}=string.Empty; public string Description{get;set;}=string.Empty; public string Reference{get;set;}=string.Empty; public DateTime Timestamp{get;set;} public decimal? BalanceAfter{get;set;} }

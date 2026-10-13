@@ -1,0 +1,25 @@
+reviews:
+  auto_review:
+    enabled: true
+
+    # Allow reviews on both default and non-default branches
+    base_branches:
+      - main
+      - develop
+
+  path_filters:
+    - "**/*.cs"
+    - "**/*.csproj"
+    - "**/*.sln"
+    - "**/*.json"
+    - "**/*.yaml"
+    - "**/*.yml"
+    - "**/*.md"
+    - "**/Dockerfile"
+    - "!**/bin/**"
+    - "!**/obj/**"
+    - "!**/*.dll"
+    - "!**/*.pdb"
+    - "!**/*.log"
+    - "!**/.vs/**"
+    - "!**/node_modules/**"

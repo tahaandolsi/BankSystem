@@ -1,0 +1,1 @@
+using BankSystem.Notification.Application.DTOs;using BankSystem.Notification.Domain.Enums;using MediatR;namespace BankSystem.Notification.Application.Commands;public record SendNotificationCommand(string UserId,NotificationType Type,string Subject,string Body,NotificationPriority Priority=NotificationPriority.Normal):IRequest<NotificationDto>;

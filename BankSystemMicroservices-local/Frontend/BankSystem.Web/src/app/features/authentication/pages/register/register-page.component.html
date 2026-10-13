@@ -1,0 +1,39 @@
+<main class="auth-page">
+  <section class="auth-card" aria-labelledby="register-title">
+    <p class="eyebrow">BANK SYSTEM</p>
+    <h1 id="register-title">Créer un compte</h1>
+    <p class="intro">Renseigne tes informations pour créer ton accès.</p>
+
+    @if (serverError(); as error) { <p class="alert" role="alert">{{ error }}</p> }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <label for="userName">Nom d’utilisateur</label>
+      <input id="userName" type="text" autocomplete="username" formControlName="userName" />
+      @if (hasError('userName', 'required') || hasError('userName', 'minlength') || hasError('userName', 'pattern')) { <small>3 à 30 caractères : lettres, chiffres, point, tiret ou underscore.</small> }
+
+      <label for="email">E-mail</label>
+      <input id="email" type="email" autocomplete="email" formControlName="email" />
+      @if (hasError('email', 'required') || hasError('email', 'email')) { <small>Une adresse e-mail valide est obligatoire.</small> }
+
+      <label for="firstName">Prénom</label>
+      <input id="firstName" type="text" autocomplete="given-name" formControlName="firstName" />
+      @if (hasError('firstName', 'required')) { <small>Le prénom est obligatoire.</small> }
+
+      <label for="lastName">Nom</label>
+      <input id="lastName" type="text" autocomplete="family-name" formControlName="lastName" />
+      @if (hasError('lastName', 'required')) { <small>Le nom est obligatoire.</small> }
+
+      <label for="password">Mot de passe</label>
+      <input id="password" type="password" autocomplete="new-password" formControlName="password" />
+      @if (hasError('password', 'required') || hasError('password', 'pattern') || hasError('password', 'minlength')) { <small>8 caractères minimum, avec majuscule, minuscule, chiffre et caractère spécial.</small> }
+
+      <label for="confirmPassword">Confirmer le mot de passe</label>
+      <input id="confirmPassword" type="password" autocomplete="new-password" formControlName="confirmPassword" />
+      @if (form.touched && form.hasError('passwordsDoNotMatch')) { <small>Les mots de passe ne correspondent pas.</small> }
+
+      <button type="submit" [disabled]="isSubmitting()">{{ isSubmitting() ? 'Création…' : 'Créer le compte' }}</button>
+    </form>
+
+    <p class="alternate">Déjà un compte ? <a routerLink="/login">Se connecter</a></p>
+  </section>
+</main>

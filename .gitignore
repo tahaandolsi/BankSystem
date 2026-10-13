@@ -1,0 +1,92 @@
+# Local environment files and secrets
+.env
+.env.*
+!.env.example
+!**/.env.example
+!.env.*.example
+!**/.env.*.example
+!.env.sample
+!**/.env.sample
+!.env.template
+!**/.env.template
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+.vs/
+.idea/
+*.user
+*.suo
+*.swp
+*.swo
+*~
+
+# .NET
+**/bin/
+**/obj/
+**/TestResults/
+**/artifacts/
+
+# Angular and Node
+**/node_modules/
+**/dist/
+**/.angular/cache/
+**/coverage/
+
+# Java and Maven
+**/target/
+**/.gradle/
+*.class
+
+# Python
+**/__pycache__/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+**/.venv/
+**/venv/
+*.py[cod]
+
+# Generated ML models and run artifacts
+*.joblib
+*.pkl
+*.onnx
+*.h5
+*.pt
+*.pth
+**/mlruns/
+
+# Local logs and generated database files
+*.log
+**/pgdata/
+**/postgres-data/
+**/rabbitmq-data/
+**/kafka-data/
+**/sqlserver-data/
+*.dump
+*.bak
+*.backup
+*.sql.gz
+*.sqlite
+*.sqlite3
+*.db
+# Additional local certificates, temporary files, and log directories
+*.p8
+*.der
+**/logs/
+*.tmp
+*.temp
+
+# Additional generated ML artifacts
+*.keras
+*.safetensors

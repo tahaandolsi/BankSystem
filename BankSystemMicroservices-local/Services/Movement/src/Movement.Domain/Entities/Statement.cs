@@ -1,0 +1,1 @@
+namespace BankSystem.Movement.Domain.Entities; public class Statement { public Guid AccountId{get;set;} public DateTime StartDate{get;set;} public DateTime EndDate{get;set;} public decimal OpeningBalance{get;set;} public decimal ClosingBalance{get;set;} public decimal TotalCredits{get;set;} public decimal TotalDebits{get;set;} public int TransactionCount{get;set;} }

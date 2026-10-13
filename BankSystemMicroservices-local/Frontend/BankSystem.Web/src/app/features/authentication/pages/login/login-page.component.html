@@ -1,0 +1,33 @@
+<main class="auth-page">
+  <section class="auth-card" aria-labelledby="login-title">
+    <p class="eyebrow">BANK SYSTEM</p>
+    <h1 id="login-title">Connexion</h1>
+    <p class="intro">Connecte-toi pour accéder à tes services bancaires.</p>
+
+    @if (serverError(); as error) {
+      <p class="alert" role="alert">{{ error }}</p>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <label for="userName">Nom d’utilisateur</label>
+      <input id="userName" type="text" autocomplete="username" formControlName="userName" />
+      @if (hasError('userName', 'required')) {
+        <small>Le nom d’utilisateur est obligatoire.</small>
+      }
+
+      <label for="password">Mot de passe</label>
+      <input id="password" type="password" autocomplete="current-password" formControlName="password" />
+      @if (hasError('password', 'required')) {
+        <small>Le mot de passe est obligatoire.</small>
+      } @else if (hasError('password', 'minlength')) {
+        <small>Le mot de passe doit contenir au moins 8 caractères.</small>
+      }
+
+      <button type="submit" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Connexion…' : 'Se connecter' }}
+      </button>
+    </form>
+
+    <p class="alternate">Pas encore de compte ? <a routerLink="/register">Créer un compte</a></p>
+  </section>
+</main>

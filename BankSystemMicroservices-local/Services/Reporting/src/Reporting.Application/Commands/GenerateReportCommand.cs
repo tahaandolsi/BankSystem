@@ -1,0 +1,1 @@
+using BankSystem.Reporting.Application.DTOs;using MediatR;namespace BankSystem.Reporting.Application.Commands;public record GenerateReportCommand(Guid ReportDefinitionId,Guid CustomerId,string RequestedBy):IRequest<ReportExecutionDto>;

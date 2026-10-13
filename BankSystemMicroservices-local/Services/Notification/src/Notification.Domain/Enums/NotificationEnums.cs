@@ -1,0 +1,1 @@
+namespace BankSystem.Notification.Domain.Enums; public enum NotificationType{Email,Sms,Push,InApp} public enum NotificationStatus{Pending,Sent,Delivered,Failed,Cancelled} public enum NotificationPriority{Low,Normal,High,Critical}

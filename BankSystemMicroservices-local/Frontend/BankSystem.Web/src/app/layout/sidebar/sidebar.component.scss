@@ -1,0 +1,7 @@
+.sidebar { background: #172554; color: #dbeafe; min-height: 100dvh; padding: 1.5rem 1rem; width: 14rem; }
+.brand { color: #fff; display: block; font-size: 1.15rem; font-weight: 800; margin: 0 .5rem 2rem; text-decoration: none; }
+nav { display: grid; gap: .35rem; }
+nav a, nav span { border-radius: .5rem; box-sizing: border-box; color: inherit; padding: .7rem .75rem; text-decoration: none; }
+nav a:hover, nav a.active { background: #1d4ed8; color: #fff; }
+nav span { color: #93c5fd; cursor: not-allowed; display: flex; justify-content: space-between; }
+em { color: #60a5fa; font-size: .65rem; font-style: normal; text-transform: uppercase; }

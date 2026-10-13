@@ -1,0 +1,1 @@
+namespace BankSystem.Reporting.Domain.Enums; public enum ReportStatus{Pending,Running,Completed,Failed} public enum ReportType{AccountSummary,TransactionSummary,MovementSummary,Compliance,Performance}

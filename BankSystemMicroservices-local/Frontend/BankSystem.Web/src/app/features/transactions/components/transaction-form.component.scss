@@ -1,0 +1,12 @@
+.page { max-width: 38rem; padding: 2rem; }.eyebrow { color: #2563eb; font-size: .75rem; font-weight: 700; letter-spacing: .1em; margin: 0; } h1 { color: #172554; margin: .4rem 0; }.intro { color: #475569; }
+form { display: grid; gap: .55rem; margin-top: 1.5rem; } label { color: #1e293b; font-weight: 700; margin-top: .4rem; } label span { color: #64748b; font-weight: 400; }
+input, select { border: 1px solid #cbd5e1; border-radius: .5rem; font: inherit; padding: .7rem; } input:focus, select:focus { border-color: #2563eb; outline: 2px solid rgb(37 99 235 / 20%); }
+small { color: #b91c1c; }.alert { border-radius: .5rem; padding: .75rem; }.error { background: #fef2f2; color: #b91c1c; }.success { background: #f0fdf4; color: #166534; }
+button { background: #1d4ed8; border: 0; border-radius: .5rem; color: #fff; cursor: pointer; font: inherit; font-weight: 700; margin-top: 1rem; padding: .75rem; } button:disabled { cursor: wait; opacity: .7; }
+.payment-status { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: .75rem; margin-top: 1.5rem; padding: 1rem; }
+.payment-status h2 { color: #172554; margin-top: 0; }
+.payment-status dl { display: grid; gap: .5rem; overflow-wrap: anywhere; }
+.payment-status dl div { display: grid; gap: .25rem; }
+.payment-status dt { color: #475569; font-weight: 700; }
+.payment-status dd { margin: 0; }
+.payment-status .secondary { background: #475569; margin-left: .5rem; }

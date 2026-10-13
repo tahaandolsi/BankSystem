@@ -1,0 +1,271 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: banksystem-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: "${BANK_POSTGRES_USER:?Set BANK_POSTGRES_USER before starting Compose}"
+      POSTGRES_PASSWORD: "${BANK_POSTGRES_PASSWORD:?Set BANK_POSTGRES_PASSWORD before starting Compose}"
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - banksystem-postgres-data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: banksystem-sqlserver
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+      MSSQL_SA_PASSWORD: "${BANK_MSSQL_SA_PASSWORD:?Set BANK_MSSQL_SA_PASSWORD before starting Compose}"
+    ports:
+      - "1433:1433"
+    volumes:
+      - banksystem-sqlserver-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "${MSSQL_SA_PASSWORD}" -C -Q 'SELECT 1' >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: banksystem-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: "${BANK_RABBITMQ_USER:?Set BANK_RABBITMQ_USER before starting Compose}"
+      RABBITMQ_DEFAULT_PASS: "${BANK_RABBITMQ_PASSWORD:?Set BANK_RABBITMQ_PASSWORD before starting Compose}"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - banksystem-rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  security:
+    build:
+      context: ..
+      dockerfile: Services/Security/src/Security.Api/Dockerfile
+    container_name: banksystem-security
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTP_PORTS: 8080
+      ConnectionStrings__DefaultConnection: "${BANK_SECURITY_DB_CONNECTION:?Set BANK_SECURITY_DB_CONNECTION before starting Compose}"
+      Jwt__Key: "${BANK_JWT_SIGNING_KEY:?Set BANK_JWT_SIGNING_KEY before starting Compose}"
+      Jwt__Issuer: BankSystem
+      Jwt__Audience: bank-system-api
+      Jwt__ValidateIssuer: "true"
+      Jwt__ValidateAudience: "true"
+      Jwt__ValidateLifetime: "true"
+      Jwt__ValidateIssuerSigningKey: "true"
+      Cors__AllowedOrigins__0: "http://localhost:55837"
+      InterServiceSecurity__ApiKey__Value: "${BANK_INTER_SERVICE_API_KEY:?Set BANK_INTER_SERVICE_API_KEY before starting Compose}"
+    ports:
+      - "5153:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+  account:
+    build:
+      context: ..
+      dockerfile: Services/Account/src/Account.Api/Dockerfile
+    container_name: banksystem-account
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTP_PORTS: 8080
+      ConnectionStrings__DefaultConnection: "${BANK_ACCOUNT_DB_CONNECTION:?Set BANK_ACCOUNT_DB_CONNECTION before starting Compose}"
+      Jwt__Key: "${BANK_JWT_SIGNING_KEY:?Set BANK_JWT_SIGNING_KEY before starting Compose}"
+      Jwt__Issuer: BankSystem
+      Jwt__Audience: bank-system-api
+      Jwt__ValidateIssuer: "true"
+      Jwt__ValidateAudience: "true"
+      Jwt__ValidateLifetime: "true"
+      Jwt__ValidateIssuerSigningKey: "true"
+      Cors__AllowedOrigins__0: "http://localhost:55837"
+      MassTransit__RabbitMQ__Host: rabbitmq://rabbitmq:5672
+      MassTransit__RabbitMQ__VirtualHost: /
+      MassTransit__RabbitMQ__Username: "${BANK_RABBITMQ_USER:?Set BANK_RABBITMQ_USER before starting Compose}"
+      MassTransit__RabbitMQ__Password: "${BANK_RABBITMQ_PASSWORD:?Set BANK_RABBITMQ_PASSWORD before starting Compose}"
+    ports:
+      - "5069:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  transaction:
+    build:
+      context: ..
+      dockerfile: Services/Transaction/src/Transaction.Api/Dockerfile
+    container_name: banksystem-transaction
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTP_PORTS: 8080
+      AccountApi__BaseUrl: "http://account:8080/"
+      ConnectionStrings__DefaultConnection: "${BANK_TRANSACTION_DB_CONNECTION:?Set BANK_TRANSACTION_DB_CONNECTION before starting Compose}"
+      Jwt__Key: "${BANK_JWT_SIGNING_KEY:?Set BANK_JWT_SIGNING_KEY before starting Compose}"
+      Jwt__Issuer: BankSystem
+      Jwt__Audience: bank-system-api
+      Jwt__ValidateIssuer: "true"
+      Jwt__ValidateAudience: "true"
+      Jwt__ValidateLifetime: "true"
+      Jwt__ValidateIssuerSigningKey: "true"
+      Cors__AllowedOrigins__0: "http://localhost:55837"
+      MassTransit__RabbitMQ__Host: rabbitmq://rabbitmq:5672
+      MassTransit__RabbitMQ__VirtualHost: /
+      MassTransit__RabbitMQ__Username: "${BANK_RABBITMQ_USER:?Set BANK_RABBITMQ_USER before starting Compose}"
+      MassTransit__RabbitMQ__Password: "${BANK_RABBITMQ_PASSWORD:?Set BANK_RABBITMQ_PASSWORD before starting Compose}"
+    ports:
+      - "59944:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  movement:
+    build:
+      context: ..
+      dockerfile: Services/Movement/src/Movement.Api/Dockerfile
+    container_name: banksystem-movement
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTP_PORTS: 8080
+      AccountApi__BaseUrl: "http://account:8080/"
+      ConnectionStrings__DefaultConnection: "${BANK_MOVEMENT_DB_CONNECTION:?Set BANK_MOVEMENT_DB_CONNECTION before starting Compose}"
+      Jwt__Key: "${BANK_JWT_SIGNING_KEY:?Set BANK_JWT_SIGNING_KEY before starting Compose}"
+      Jwt__Issuer: BankSystem
+      Jwt__Audience: bank-system-api
+      Jwt__ValidateIssuer: "true"
+      Jwt__ValidateAudience: "true"
+      Jwt__ValidateLifetime: "true"
+      Jwt__ValidateIssuerSigningKey: "true"
+      Cors__AllowedOrigins__0: "http://localhost:55837"
+      MassTransit__RabbitMQ__Host: rabbitmq://rabbitmq:5672
+      MassTransit__RabbitMQ__VirtualHost: /
+      MassTransit__RabbitMQ__Username: "${BANK_RABBITMQ_USER:?Set BANK_RABBITMQ_USER before starting Compose}"
+      MassTransit__RabbitMQ__Password: "${BANK_RABBITMQ_PASSWORD:?Set BANK_RABBITMQ_PASSWORD before starting Compose}"
+    ports:
+      - "59945:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  notification:
+    build:
+      context: ..
+      dockerfile: Services/Notification/src/Notification.Api/Dockerfile
+    container_name: banksystem-notification
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTP_PORTS: 8080
+      ConnectionStrings__DefaultConnection: "${BANK_NOTIFICATION_DB_CONNECTION:?Set BANK_NOTIFICATION_DB_CONNECTION before starting Compose}"
+      Jwt__Key: "${BANK_JWT_SIGNING_KEY:?Set BANK_JWT_SIGNING_KEY before starting Compose}"
+      Jwt__Issuer: BankSystem
+      Jwt__Audience: bank-system-api
+      Jwt__ValidateIssuer: "true"
+      Jwt__ValidateAudience: "true"
+      Jwt__ValidateLifetime: "true"
+      Jwt__ValidateIssuerSigningKey: "true"
+      Cors__AllowedOrigins__0: "http://localhost:55837"
+      MassTransit__RabbitMQ__Host: rabbitmq://rabbitmq:5672
+      MassTransit__RabbitMQ__VirtualHost: /
+      MassTransit__RabbitMQ__Username: "${BANK_RABBITMQ_USER:?Set BANK_RABBITMQ_USER before starting Compose}"
+      MassTransit__RabbitMQ__Password: "${BANK_RABBITMQ_PASSWORD:?Set BANK_RABBITMQ_PASSWORD before starting Compose}"
+    ports:
+      - "59946:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  reporting:
+    build:
+      context: ..
+      dockerfile: Services/Reporting/src/Reporting.Api/Dockerfile
+    container_name: banksystem-reporting
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTP_PORTS: 8080
+      ConnectionStrings__DefaultConnection: "${BANK_REPORTING_DB_CONNECTION:?Set BANK_REPORTING_DB_CONNECTION before starting Compose}"
+      Jwt__Key: "${BANK_JWT_SIGNING_KEY:?Set BANK_JWT_SIGNING_KEY before starting Compose}"
+      Jwt__Issuer: BankSystem
+      Jwt__Audience: bank-system-api
+      Jwt__ValidateIssuer: "true"
+      Jwt__ValidateAudience: "true"
+      Jwt__ValidateLifetime: "true"
+      Jwt__ValidateIssuerSigningKey: "true"
+      Cors__AllowedOrigins__0: "http://localhost:55837"
+      MassTransit__RabbitMQ__Host: rabbitmq://rabbitmq:5672
+      MassTransit__RabbitMQ__VirtualHost: /
+      MassTransit__RabbitMQ__Username: "${BANK_RABBITMQ_USER:?Set BANK_RABBITMQ_USER before starting Compose}"
+      MassTransit__RabbitMQ__Password: "${BANK_RABBITMQ_PASSWORD:?Set BANK_RABBITMQ_PASSWORD before starting Compose}"
+    ports:
+      - "59943:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  gateway:
+    build:
+      context: ..
+      dockerfile: Gateway/ApiGateway/Dockerfile
+    container_name: banksystem-gateway
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      ASPNETCORE_HTTP_PORTS: 8080
+      Jwt__Key: "${BANK_JWT_SIGNING_KEY:?Set BANK_JWT_SIGNING_KEY before starting Compose}"
+      Jwt__Issuer: BankSystem
+      Jwt__Audience: bank-system-api
+      Jwt__ValidateIssuer: "true"
+      Jwt__ValidateAudience: "true"
+      Jwt__ValidateLifetime: "true"
+      Jwt__ValidateIssuerSigningKey: "true"
+      Authentication__Jwt__Key: "${BANK_JWT_SIGNING_KEY:?Set BANK_JWT_SIGNING_KEY before starting Compose}"
+      Authentication__Jwt__Issuer: BankSystem
+      Authentication__Jwt__Audience: bank-system-api
+      Authentication__Jwt__ValidateIssuer: "true"
+      Authentication__Jwt__ValidateAudience: "true"
+      Authentication__Jwt__ValidateLifetime: "true"
+      Authentication__Jwt__ValidateIssuerSigningKey: "true"
+      Gateway__Cors__AllowedOrigins__0: "http://localhost:4200"
+    ports:
+      # 55837 is reserved by Windows on this development machine.
+      - "56000:8080"
+    depends_on:
+      security:
+        condition: service_started
+      account:
+        condition: service_started
+      transaction:
+        condition: service_started
+      movement:
+        condition: service_started
+      notification:
+        condition: service_started
+      reporting:
+        condition: service_started
+
+volumes:
+  banksystem-postgres-data:
+  banksystem-sqlserver-data:
+  banksystem-rabbitmq-data:

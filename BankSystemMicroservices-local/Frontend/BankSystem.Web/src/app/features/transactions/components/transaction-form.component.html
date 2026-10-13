@@ -1,0 +1,89 @@
+<section class="page" [attr.aria-labelledby]="operation + '-title'">
+  <p class="eyebrow">TRANSACTIONS</p>
+  <h1 [id]="operation + '-title'">{{ title }}</h1>
+  <p class="intro">L’opération sera traitée de manière sécurisée par le système bancaire.</p>
+
+  @if (error(); as message) { <p class="alert error" role="alert">{{ message }}</p> }
+  @if (success(); as message) { <p class="alert success" role="status">{{ message }}</p> }
+
+  @if (payment() || recoveryPaymentId() || recoverySessionChanged() || requiresIdempotencyLookup()) {
+    <section class="payment-status" aria-live="polite">
+      <h2>Suivi du virement</h2>
+      @if (payment(); as currentPayment) {
+        <p>{{ paymentStatusLabel(currentPayment) }}</p>
+        <dl>
+          <div><dt>Référence</dt><dd>{{ currentPayment.paymentId }}</dd></div>
+          <div><dt>Statut</dt><dd>{{ currentPayment.status }}</dd></div>
+          @if (currentPayment.transactionId) {
+            <div><dt>Transaction bancaire</dt><dd>{{ currentPayment.transactionId }}</dd></div>
+          }
+        </dl>
+        @if (canStartNewTransfer(currentPayment)) {
+          <button type="button" class="secondary" (click)="startNewTransfer()">Nouveau virement</button>
+        }
+      } @else if (requiresIdempotencyLookup()) {
+        <p>Une réponse précédente est incertaine. Recherchez d’abord le paiement avec sa clé de reprise. Cette consultation ne crée aucun paiement.</p>
+        <button type="button" [disabled]="isSearchingRecovery()" (click)="searchPaymentRecovery()">
+          {{ isSearchingRecovery() ? 'Recherche…' : 'Rechercher le paiement' }}
+        </button>
+      } @else {
+        @if (recoverySessionChanged()) {
+          <p>La session de connexion a changé. Aucun nouveau virement ne sera envoyé avec cette reprise. Si une référence Payment est disponible, seule sa consultation sécurisée est tentée.</p>
+        } @else if (paymentLookupBlocked()) {
+          <p>Le paiement n’est pas consultable avec cette session. Ne créez pas une nouvelle demande avant vérification.</p>
+        } @else {
+          <p>Le statut est temporairement inaccessible. Aucun résultat financier n’est déduit.</p>
+        }
+      }
+      @if (recoveryPaymentId()) {
+        <button type="button" [disabled]="isRefreshingPayment()" (click)="refreshPaymentStatus()">
+          {{ isRefreshingPayment() ? 'Actualisation…' : 'Actualiser le statut' }}
+        </button>
+      }
+    </section>
+  } @else {
+
+  @if (requiresSameRequestRetry()) {
+    <p class="alert" role="status">La recherche n’a trouvé aucun paiement accessible pour cette clé. Aucun nouveau virement n’a été envoyé. Vous pouvez ressaisir exactement les mêmes données et réessayer avec la même clé. Les données du virement ne sont pas conservées dans le navigateur.</p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <label for="accountId">Numéro de compte</label>
+    <select id="accountId" formControlName="accountId" [disabled]="isLoadingAccounts() || (isTransfer && transferAttempt() !== null)">
+      <option value="">{{ isLoadingAccounts() ? 'Chargement des comptes…' : 'Sélectionnez un compte' }}</option>
+      @for (account of accounts(); track account.id) {
+        <option [value]="account.id">{{ formatIban(account.accountNumber) }} — {{ account.accountType }} — {{ account.currency }}</option>
+      }
+    </select>
+    @if (hasError('accountId', 'required')) { <small>Sélectionnez un numéro de compte.</small> }
+
+    @if (isTransfer) {
+      <label for="toAccountId">Numéro de compte bénéficiaire</label>
+      <select id="toAccountId" formControlName="toAccountId" [disabled]="isLoadingAccounts() || transferAttempt() !== null">
+        <option value="">Sélectionnez le compte bénéficiaire</option>
+        @for (account of accounts(); track account.id) {
+          <option [value]="account.id">{{ formatIban(account.accountNumber) }} — {{ account.accountType }} — {{ account.currency }}</option>
+        }
+      </select>
+      @if (hasError('toAccountId', 'required')) { <small>Sélectionnez un numéro de compte bénéficiaire.</small> }
+    }
+
+    <label for="amount">Montant</label>
+    <input id="amount" type="number" min="0.01" step="0.01" formControlName="amount" [readonly]="isTransfer && transferAttempt() !== null" />
+    @if (hasError('amount', 'min')) { <small>Le montant doit être supérieur à zéro.</small> }
+
+    <label for="currency">Devise</label>
+    <select id="currency" formControlName="currency" [disabled]="isTransfer && transferAttempt() !== null"><option value="USD">USD</option><option value="EUR">EUR</option></select>
+
+    @if (!isTransfer) {
+      <label for="description">Description <span>(facultative)</span></label>
+      <input id="description" type="text" formControlName="description" maxlength="250" />
+    }
+
+    <label for="reference">Référence <span>(facultative)</span></label>
+    <input id="reference" type="text" formControlName="reference" maxlength="100" [readonly]="isTransfer && transferAttempt() !== null" />
+
+    <button type="submit" [disabled]="isSubmitting() || (isTransfer && !recoveryStorageAvailable())">{{ isSubmitting() ? 'Envoi…' : (isTransfer && (transferAttempt() !== null || requiresSameRequestRetry()) ? 'Réessayer la même demande' : 'Confirmer l’opération') }}</button>
+  </form>
+  }
+</section>

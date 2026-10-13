@@ -1,0 +1,8 @@
+.page { max-width: 34rem; padding: 2rem; }
+.back { color: #1d4ed8; display: inline-block; font-weight: 700; margin-bottom: 1.5rem; text-decoration: none; }
+h1 { color: #172554; margin-bottom: .5rem; } p { color: #475569; }
+form { display: grid; gap: .6rem; margin-top: 1.5rem; }
+label { color: #1e293b; font-weight: 700; margin-top: .5rem; }
+select { border: 1px solid #cbd5e1; border-radius: .5rem; font: inherit; padding: .7rem; }
+button { background: #1d4ed8; border: 0; border-radius: .5rem; color: #fff; cursor: pointer; font: inherit; font-weight: 700; margin-top: 1rem; padding: .75rem; }
+button:disabled { opacity: .7; }.error { color: #b91c1c; }

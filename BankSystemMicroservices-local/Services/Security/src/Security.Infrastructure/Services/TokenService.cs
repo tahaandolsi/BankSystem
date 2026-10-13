@@ -1,0 +1,122 @@
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using Security.Application.Configuration;
+using Security.Application.Interfaces;
+using Security.Domain.Entities;
+
+namespace Security.Infrastructure.Services;
+
+/// <summary>
+/// Service for creating and validating JWT tokens
+/// </summary>
+public class TokenService : ITokenService
+{
+    private readonly JwtOptions _jwtOptions;
+    private readonly SymmetricSecurityKey _key;
+    private readonly JwtSecurityTokenHandler _tokenHandler;
+
+    public TokenService(IOptions<JwtOptions> jwtOptions)
+    {
+        _jwtOptions = jwtOptions.Value;
+
+        if (string.IsNullOrWhiteSpace(_jwtOptions.Key))
+            throw new ArgumentException("JWT key cannot be null or empty", nameof(jwtOptions));
+
+        _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key));
+        _tokenHandler = new JwtSecurityTokenHandler();
+    }
+
+    public Task<(string Token, string JwtId, DateTimeOffset Expiry)> CreateAccessTokenAsync(
+        ApplicationUser user,
+        IEnumerable<Claim> claims
+    )
+    {
+        var jwtId = Guid.NewGuid().ToString();
+        var issuedAt = DateTimeOffset.UtcNow;
+        var expiry = issuedAt.AddMinutes(_jwtOptions.AccessTokenExpiryInMinutes);
+
+        // Always ensure both sub and name identifier are present and set to user.Id
+        var allClaims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Sub, user.Id),
+            new(ClaimTypes.NameIdentifier, user.Id),
+            new(JwtRegisteredClaimNames.Jti, jwtId),
+            new(
+                JwtRegisteredClaimNames.Iat,
+                issuedAt.ToUnixTimeSeconds().ToString(),
+                ClaimValueTypes.Integer64
+            ),
+        };
+
+        // Add all other claims except sub and name identifier to avoid duplicates/overwrites
+        allClaims.AddRange(
+            claims.Where(claim =>
+                claim.Type != JwtRegisteredClaimNames.Sub && claim.Type != ClaimTypes.NameIdentifier
+            )
+        );
+
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(allClaims),
+            IssuedAt = issuedAt.UtcDateTime,
+            NotBefore = issuedAt.UtcDateTime,
+            Expires = expiry.UtcDateTime,
+            SigningCredentials = new SigningCredentials(_key, SecurityAlgorithms.HmacSha256),
+            Issuer = _jwtOptions.Issuer,
+            Audience = _jwtOptions.Audience,
+        };
+
+        var token = _tokenHandler.CreateToken(tokenDescriptor);
+        var tokenString = _tokenHandler.WriteToken(token);
+
+        return Task.FromResult((tokenString, jwtId, expiry));
+    }
+
+    public ClaimsPrincipal? GetPrincipalFromExpiredToken(string accessToken)
+    {
+        var validationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = _jwtOptions.ValidateIssuerSigningKey,
+            IssuerSigningKey = _key,
+            ValidateIssuer = _jwtOptions.ValidateIssuer,
+            ValidateAudience = _jwtOptions.ValidateAudience,
+            ValidIssuer = _jwtOptions.Issuer,
+            ValidAudience = _jwtOptions.Audience,
+            ValidateLifetime = false, // Don't validate expiry for refresh tokens
+            ClockSkew = TimeSpan.Zero,
+        };
+
+        try
+        {
+            var principal = _tokenHandler.ValidateToken(accessToken, validationParameters, out _);
+
+            if (!IsJwtWithValidSecurityAlgorithm(accessToken))
+                return null;
+
+            return principal;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public bool IsJwtWithValidSecurityAlgorithm(string token)
+    {
+        try
+        {
+            var jwtToken = _tokenHandler.ReadJwtToken(token);
+            return jwtToken.Header.Alg.Equals(
+                SecurityAlgorithms.HmacSha256,
+                StringComparison.InvariantCultureIgnoreCase
+            );
+        }
+        catch
+        {
+            return false;
+        }
+    }
+}

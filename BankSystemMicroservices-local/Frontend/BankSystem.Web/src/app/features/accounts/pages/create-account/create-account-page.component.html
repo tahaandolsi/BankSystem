@@ -1,0 +1,13 @@
+<section class="page" aria-labelledby="create-title">
+  <a class="back" routerLink="/accounts">← Mes comptes</a>
+  <h1 id="create-title">Ouvrir un compte</h1>
+  <p>Choisis le type de compte et sa devise.</p>
+  @if (error(); as message) { <p class="error" role="alert">{{ message }}</p> }
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <label for="accountType">Type de compte</label>
+    <select id="accountType" formControlName="accountType"><option value="Checking">Courant</option><option value="Savings">Épargne</option><option value="Business">Professionnel</option></select>
+    <label for="currency">Devise</label>
+    <select id="currency" formControlName="currency"><option value="USD">USD — Dollar américain</option><option value="EUR">EUR — Euro</option></select>
+    <button type="submit" [disabled]="isSubmitting()">{{ isSubmitting() ? 'Création…' : 'Ouvrir le compte' }}</button>
+  </form>
+</section>

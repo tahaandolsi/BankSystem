@@ -1,0 +1,27 @@
+<section class="page" aria-labelledby="accounts-title">
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">VOS PRODUITS</p>
+      <h1 id="accounts-title">Mes comptes</h1>
+    </div>
+    <a class="primary-action" routerLink="/accounts/new">Ouvrir un compte</a>
+  </div>
+
+  @if (isLoading()) {
+    <p class="state">Chargement des comptes…</p>
+  } @else if (error(); as message) {
+    <div class="error"><p>{{ message }}</p><button type="button" (click)="loadAccounts()">Réessayer</button></div>
+  } @else if (accounts().length === 0) {
+    <div class="empty"><h2>Aucun compte</h2><p>Ouvre ton premier compte pour commencer.</p></div>
+  } @else {
+    <div class="account-grid">
+      @for (account of accounts(); track account.id) {
+        <a class="account-card" [routerLink]="['/accounts', account.id]">
+          <span>{{ account.accountType }}</span>
+          <strong>{{ account.balance | currency: account.currency : 'symbol' : '1.2-2' }}</strong>
+          <small>{{ account.accountNumber }} · {{ account.status }}</small>
+        </a>
+      }
+    </div>
+  }
+</section>

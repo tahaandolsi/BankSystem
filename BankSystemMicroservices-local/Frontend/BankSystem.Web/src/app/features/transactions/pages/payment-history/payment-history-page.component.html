@@ -1,0 +1,61 @@
+<section class="page" aria-labelledby="payments-title">
+  <p class="eyebrow">PAYMENT</p>
+  <h1 id="payments-title">Historique des paiements</h1>
+  <p class="intro">Cet historique concerne les paiements et reste séparé des mouvements des comptes.</p>
+
+  @if (error(); as message) { <p class="alert error" role="alert">{{ message }}</p> }
+
+  @if (isLoading()) {
+    <p role="status">Chargement des paiements…</p>
+  } @else if (history(); as currentHistory) {
+    <p class="summary">{{ currentHistory.totalCount }} paiement(s) · page {{ currentHistory.page }} sur {{ currentHistory.totalPages || 1 }}</p>
+
+    @if (currentHistory.items.length > 0) {
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>Date</th><th>Référence</th><th>Montant</th><th>Statut</th><th>Détail</th></tr>
+          </thead>
+          <tbody>
+            @for (payment of currentHistory.items; track payment.paymentId) {
+              <tr>
+                <td>{{ payment.createdAt | date: 'short' }}</td>
+                <td class="reference">{{ payment.paymentId }}</td>
+                <td>{{ payment.amount | currency: payment.currency : 'symbol' : '1.2-2' }}</td>
+                <td>{{ paymentStatusLabel(payment) }}</td>
+                <td><button type="button" (click)="loadPaymentDetails(payment.paymentId)">Voir le détail</button></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <p class="empty">Aucun paiement dans votre historique.</p>
+    }
+
+    <nav class="pagination" aria-label="Pagination des paiements">
+      <button type="button" [disabled]="isLoading() || currentHistory.page <= 1" (click)="previousPage()">Précédent</button>
+      <span>Page {{ currentHistory.page }} / {{ currentHistory.totalPages || 1 }}</span>
+      <button type="button" [disabled]="isLoading() || currentHistory.page >= currentHistory.totalPages" (click)="nextPage()">Suivant</button>
+    </nav>
+  }
+
+  @if (detailError(); as message) { <p class="alert error" role="alert">{{ message }}</p> }
+  @if (isLoadingDetail()) { <p role="status">Chargement du détail…</p> }
+  @if (selectedPayment(); as payment) {
+    <section class="details" aria-labelledby="payment-detail-title">
+      <h2 id="payment-detail-title">Détail du paiement</h2>
+      <dl>
+        <div><dt>Référence</dt><dd>{{ payment.paymentId }}</dd></div>
+        <div><dt>Date de création</dt><dd>{{ payment.createdAt | date: 'short' }}</dd></div>
+        <div><dt>Montant</dt><dd>{{ payment.amount | currency: payment.currency : 'symbol' : '1.2-2' }}</dd></div>
+        <div><dt>Compte source</dt><dd>{{ payment.sourceAccountId }}</dd></div>
+        <div><dt>Compte bénéficiaire</dt><dd>{{ payment.beneficiaryAccountId }}</dd></div>
+        <div><dt>Statut</dt><dd>{{ paymentStatusLabel(payment) }}</dd></div>
+        @if (payment.failureReasonCode) { <div><dt>Motif</dt><dd>{{ payment.failureReasonCode }}</dd></div> }
+        @if (payment.transactionId) { <div><dt>Transaction bancaire</dt><dd>{{ payment.transactionId }}</dd></div> }
+        <div><dt>Dernière mise à jour</dt><dd>{{ payment.updatedAt | date: 'short' }}</dd></div>
+      </dl>
+    </section>
+  }
+</section>

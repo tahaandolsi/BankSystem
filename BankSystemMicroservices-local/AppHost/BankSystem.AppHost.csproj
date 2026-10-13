@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.5.0" />
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>34fbd6ef-c2b3-4dd7-883b-f3a0b987e284</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Gateway\ApiGateway\BankSystem.ApiGateway.csproj" />
+    <ProjectReference Include="..\Services\Account\src\Account.Api\BankSystem.Account.Api.csproj" />
+    <ProjectReference Include="..\Services\Security\src\Security.Api\Security.Api.csproj" />
+    <ProjectReference Include="..\Services\Transaction\src\Transaction.Api\BankSystem.Transaction.Api.csproj" />
+    <ProjectReference Include="..\Services\Movement\src\Movement.Api\BankSystem.Movement.Api.csproj" />
+    <ProjectReference Include="..\Services\Notification\src\Notification.Api\BankSystem.Notification.Api.csproj" />
+    <ProjectReference Include="..\Services\Reporting\src\Reporting.Api\BankSystem.Reporting.Api.csproj" />
+  </ItemGroup>
+
+</Project>

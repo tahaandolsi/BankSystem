@@ -1,0 +1,1 @@
+namespace BankSystem.Notification.Application.DTOs; public record NotificationDto(Guid Id,string UserId,string Type,string Status,string Subject,string Body,DateTime CreatedAt,DateTime? SentAt,string? Error);

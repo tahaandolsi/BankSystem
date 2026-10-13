@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.Docker.Sdk">
+  <PropertyGroup>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerDevelopmentMode>Fast</DockerDevelopmentMode>
+  </PropertyGroup>
+</Project>

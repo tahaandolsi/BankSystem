@@ -1,0 +1,16 @@
+<section class="page" aria-labelledby="notifications-title">
+  <div class="page-header"><div><p class="eyebrow">INFORMATIONS</p><h1 id="notifications-title">Mes notifications</h1></div><button type="button" (click)="loadNotifications()" [disabled]="isLoading()">Actualiser</button></div>
+  @if (isLoading()) { <p class="state">Chargement des notifications…</p> }
+  @else if (error(); as message) { <p class="alert" role="alert">{{ message }}</p> }
+  @else if (notifications().length === 0) { <div class="empty"><h2>Aucune notification</h2><p>Les notifications liées à vos opérations apparaîtront ici.</p></div> }
+  @else { <div class="notification-list">
+    @for (notification of notifications(); track notification.id) {
+      <article class="notification" [class.failed]="notification.status === 'Failed'">
+        <div class="notification-header"><h2>{{ notification.subject }}</h2><time>{{ notification.createdAt | date: 'short' }}</time></div>
+        <p>{{ notification.body }}</p>
+        <small>{{ notification.type }} · {{ notification.status }}</small>
+        @if (notification.error) { <p class="delivery-error">Erreur : {{ notification.error }}</p> }
+      </article>
+    }
+  </div> }
+</section>
